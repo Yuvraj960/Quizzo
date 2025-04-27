@@ -1,0 +1,52 @@
+.subject-box {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin: 20px 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    min-height: 250px;
+}
+
+.subject-box h3 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.subject-box table th,
+.subject-box table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.quiz-box {
+    border: 1px solid #aaa;
+    padding: 15px;
+    margin: 20px 10px;
+    border-radius: 5px;
+    background-color: #eef;
+    min-height: 200px;
+}
+
+.quiz-box h4 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.quiz-box table th,
+.quiz-box table td {
+    padding: 5px;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+}
+
+.fixed-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #ddd;
+    padding: 10px;
+    text-align: center;
+    border-top: 1px solid #ccc;
+}
