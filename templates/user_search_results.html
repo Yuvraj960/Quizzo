@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Search Results for "{{ query }}"</h2>
+{% if results %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Quiz ID</th>
+      <th>Subject</th>
+      <th>Chapter</th>
+      <th>Date</th>
+      <th>Duration</th>
+      <th>No. of Questions</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in results %}
+    <tr>
+      <td>{{ r.quiz_id }}</td>
+      <td>{{ r.subject_name }}</td>
+      <td>{{ r.chapter_name }}</td>
+      <td>{{ r.date_of_quiz }}</td>
+      <td>{{ r.time_duration }}</td>
+      <td>{{ r.question_count }}</td>
+      <td>
+        <a href="{{ url_for('user.view_quiz', quiz_id=r.quiz_id) }}" class="btn btn-info btn-sm">View</a>
+        <a href="{{ url_for('user.attempt_quiz', quiz_id=r.quiz_id) }}" class="btn btn-success btn-sm">Start</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No results found for "{{ query }}".</p>
+{% endif %}
+{% endblock %}

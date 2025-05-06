@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div id="introSection">
+  <h2>Ready to Begin the Quiz?</h2>
+  <p>
+    Once you start, the quiz will go fullscreen. If you exit fullscreen or switch windows,
+    we auto-submit the quiz!
+  </p>
+  <button class="btn btn-primary" onclick="startQuiz()">Start Quiz</button>
+</div>
+
+<div id="quizSection" style="display:none;">
+  <form id="quizForm" method="POST" action="{{ url_for('user.attempt_quiz', quiz_id=quiz_id) }}"></form>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <span id="questionCounter">Question 1 / {{ question_count }}</span>
+    </div>
+    <div>
+      Time left: <span id="timeLeft"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h5 id="qTitle"></h5>
+      <p id="qText"></p>
+      <div id="optionsContainer"></div>
+    </div>
+  </div>
+
+  <div class="mt-3">
+    <button id="saveNextBtn" class="btn btn-primary" onclick="saveAndNext()" type="button">Save and Next</button>
+    <button id="submitBtn" class="btn btn-success" onclick="submitQuiz()" type="button">Submit</button>
+  </div>
+</div>
+
+<script>
+  const questions = JSON.parse('{{ questions|tojson }}');
+  const questionCount = JSON.parse('{{ question_count }}');
+  let totalTime = JSON.parse('{{ total_minutes }}') * 60;
+  let currentIndex = 0;
+  let quizInProgress = false;
+  let userAnswers = {};
+  let timerInterval = null;
+
+  function startQuiz() {
+    let docElm = document.documentElement;
+    if (docElm.requestFullscreen) {
+      docElm.requestFullscreen();
+    } else if (docElm.mozRequestFullScreen) {
+      docElm.mozRequestFullScreen();
+    } else if (docElm.webkitRequestFullscreen) {
+      docElm.webkitRequestFullscreen();
+    } else if (docElm.msRequestFullscreen) {
+      docElm.msRequestFullscreen();
+    }
+
+    document.getElementById("introSection").style.display = "none";
+    document.getElementById("quizSection").style.display = "block";
+
+    quizInProgress = true;
+
+    disableNavLinks();
+    attachFullScreenListeners();
+    loadQuestion(currentIndex);
+    startTimer();
+
+    document.addEventListener("keydown", blockRefreshKey);
+  }
+
+  function loadQuestion(idx) {
+    if (idx < 0 || idx >= questionCount) return;
+    const q = questions[idx];
+
+    document.getElementById('questionCounter').textContent =
+      "Question " + (idx + 1) + " / " + questionCount;
+
+    document.getElementById('qTitle').textContent = q.question_title || "";
+    document.getElementById('qText').textContent = q.question_text || "";
+
+    const optionsDiv = document.getElementById('optionsContainer');
+    optionsDiv.innerHTML = "";
+
+    for (let i = 1; i <= 4; i++) {
+      let opt = q["option" + i];
+      if (opt) {
+        const radioId = `opt_${q.id}_${i}`;
+        const isChecked = (userAnswers[q.id] == i) ? "checked" : "";
+        let optionHTML = `
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio"
+                   name="question_${q.id}"
+                   id="${radioId}"
+                   value="${i}"
+                   ${isChecked}
+                   onclick="selectAnswer(${q.id}, ${i})">
+            <label class="form-check-label" for="${radioId}">${opt}</label>
+          </div>
+        `;
+        optionsDiv.insertAdjacentHTML("beforeend", optionHTML);
+      }
+    }
+
+    document.getElementById("saveNextBtn").disabled = (idx === questionCount - 1);
+  }
+
+  function selectAnswer(questionId, optionVal) {
+    userAnswers[questionId] = optionVal;
+  }
+
+  function saveAndNext() {
+    if (currentIndex < questionCount - 1) {
+      currentIndex++;
+      loadQuestion(currentIndex);
+    }
+  }
+
+  function submitQuiz() {
+    if (!quizInProgress) return;
+    quizInProgress = false;
+
+    document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+    window.onbeforeunload = null;
+    document.removeEventListener("keydown", blockRefreshKey);
+
+    const form = document.getElementById("quizForm");
+    form.innerHTML = "";
+    for (const qid in userAnswers) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = qid;
+      input.value = userAnswers[qid];
+      form.appendChild(input);
+    }
+    form.submit();
+  }
+
+  function startTimer() {
+    updateTimeDisplay();
+    timerInterval = setInterval(() => {
+      totalTime--;
+      updateTimeDisplay();
+      if (totalTime <= 0) {
+        clearInterval(timerInterval);
+        alert("Time is up! Auto-submitting your quiz...");
+        submitQuiz();
+      }
+    }, 1000);
+  }
+
+  function updateTimeDisplay() {
+    let minutes = Math.floor(totalTime / 60);
+    let seconds = totalTime % 60;
+    let timeStr = minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0");
+    document.getElementById("timeLeft").textContent = timeStr;
+  }
+
+  function attachFullScreenListeners() {
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.onbeforeunload = function (e) {
+      if (quizInProgress) {
+        submitQuiz();
+        return "You are leaving the page; quiz is submitted automatically!";
+      }
+    };
+  }
+
+  function handleFullscreenChange() {
+    if (!document.fullscreenElement && quizInProgress) {
+      alert("You left full screen! Submitting quiz now.");
+      submitQuiz();
+    }
+  }
+
+  function handleVisibilityChange() {
+    if (document.visibilityState === 'hidden' && quizInProgress) {
+      alert("You switched or minimized the window. Submitting quiz!");
+      submitQuiz();
+    }
+  }
+
+  function disableNavLinks() {
+    let allLinks = document.querySelectorAll("a.nav-link, .navbar-brand, a[href]");
+    for (let i = 0; i < allLinks.length; i++) {
+      allLinks[i].addEventListener("click", function (e) {
+        if (quizInProgress) {
+          e.preventDefault();
+          alert("You cannot leave this page until you submit the quiz!");
+        }
+      });
+    }
+  }
+
+  function blockRefreshKey(e) {
+    if (e.keyCode === 116 || (e.keyCode === 82 && (e.ctrlKey || e.metaKey))) {
+      e.preventDefault();
+      if (quizInProgress) {
+        alert("Refresh is disabled. We will auto-submit your quiz now!");
+        submitQuiz();
+      }
+      return false;
+    }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>User Summary</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <canvas id="barChart"></canvas>
+    </div>
+    <div class="col-md-6">
+        <canvas id="pieChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var barCtx = document.getElementById('barChart').getContext('2d');
+    var barChart = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: JSON.parse('{{ bar_labels|safe }}'),
+            datasets: [{
+                label: 'Number of Quizzes',
+                data: JSON.parse('{{ bar_data|safe }}'),
+                backgroundColor: 'rgba(54, 162, 235, 0.6)'
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Subject-wise Number of Quizzes'
+            }
+        }
+    });
+
+    var pieCtx = document.getElementById('pieChart').getContext('2d');
+    var pieChart = new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: JSON.parse('{{ pie_labels|safe }}'),
+            datasets: [{
+                data: JSON.parse('{{ pie_data|safe }}'),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)'
+                ],
+                label: 'Quizzes Attempted'
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Month-Wise Number of Quizzes Attempted (by You)'
+            }
+        }
+    });
+
+</script>
+{% endblock %}

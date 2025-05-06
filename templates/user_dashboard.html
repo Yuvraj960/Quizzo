@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>User Dashboard</h2>
+<p>Welcome, {{ session.get('username') }}!</p>
+
+<div class="row">
+  <div class="col-md-12">
+    <h4>Upcoming Quizzes</h4>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>No. of Questions</th>
+          <th>Date</th>
+          <th>Duration (HH:MM)</th>
+          <th>Subject/Chapter</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for quiz in upcoming_quizzes %}
+        <tr>
+          <td>{{ quiz.quiz_id }}</td>
+          <td>{{ quiz.question_count }}</td>
+          <td>{{ quiz.date_of_quiz }}</td>
+          <td>{{ quiz.time_duration }}</td>
+          <td>{{ quiz.subject_name }} / {{ quiz.chapter_name }}</td>
+          <td>
+            <a href="{{ url_for('user.view_quiz', quiz_id=quiz.quiz_id) }}" class="btn btn-info btn-sm">View</a>
+            <a href="{{ url_for('user.attempt_quiz', quiz_id=quiz.quiz_id) }}" class="btn btn-success btn-sm">Start</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6">No upcoming quizzes available.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

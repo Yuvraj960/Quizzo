@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Quiz Details</h2>
+
+{% if quiz %}
+<div class="card">
+  <div class="card-body">
+    <p><strong>ID:</strong> {{ quiz.quiz_id }}</p>
+    <p><strong>Subject:</strong> {{ quiz.subject_name }}</p>
+    <p><strong>Chapter:</strong> {{ quiz.chapter_name }}</p>
+    <p><strong>Number of Questions:</strong> {{ quiz.question_count }}</p>
+    <p><strong>Scheduled Date:</strong> {{ quiz.date_of_quiz }}</p>
+    <p><strong>Duration (HH:MM):</strong> {{ quiz.time_duration }}</p>
+    <a href="{{ url_for('user.attempt_quiz', quiz_id=quiz.quiz_id) }}" class="btn btn-primary">Start Quiz</a>
+  </div>
+</div>
+{% else %}
+<p>Quiz not found!</p>
+{% endif %}
+
+{% endblock %}
