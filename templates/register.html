@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Register</h2>
+<form id="registerForm" method="POST" action="{{ url_for('auth.register') }}">
+    <div class="form-group">
+        <label>Username (email)</label>
+        <input id="regEmail" name="username" type="text" class="form-control" required>
+        <span id="regEmailError" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label>Password</label>
+        <input id="regPassword" name="password" type="password" class="form-control" required>
+        <span id="regPasswordError" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label>Full Name</label>
+        <input name="full_name" type="text" class="form-control">
+    </div>
+    <div class="form-group">
+        <label>Qualification</label>
+        <input name="qualification" type="text" class="form-control">
+    </div>
+    <div class="form-group">
+        <label>Date of Birth</label>
+        <input id="regDOB" name="dob" type="date" class="form-control">
+        <span id="regDOBError" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-success">Register</button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('registerForm');
+        const emailInput = document.getElementById('regEmail');
+        const emailError = document.getElementById('regEmailError');
+
+        const passwordInput = document.getElementById('regPassword');
+        const passwordError = document.getElementById('regPasswordError');
+
+        const dobInput = document.getElementById('regDOB');
+        const dobError = document.getElementById('regDOBError');
+
+        emailInput.addEventListener('input', validateEmail);
+        emailInput.addEventListener('blur', function () {
+            if (validateEmail()) checkEmailExists();
+        });
+
+        function validateEmail() {
+            emailError.textContent = '';
+            const emailVal = emailInput.value.trim();
+
+            if (!emailVal) {
+                emailError.textContent = 'Email is required.';
+                return false;
+            }
+
+            const atCount = (emailVal.match(/@/g) || []).length;
+            if (atCount !== 1) {
+                emailError.textContent = 'Invalid email address format';
+                return false;
+            }
+
+            if (/\s/.test(emailVal)) {
+                emailError.textContent = 'Invalid email address format';
+                return false;
+            }
+
+            const atPos = emailVal.indexOf('@');
+            const localPart = emailVal.slice(0, atPos);
+
+            if (/^\d/.test(localPart)) {
+                emailError.textContent = 'Invalid email address format';
+                return false;
+            }
+            if (localPart.length < 4) {
+                emailError.textContent = 'Invalid email address format';
+                return false;
+            }
+
+            const dotPos = emailVal.indexOf('.', atPos + 1);
+            if (dotPos === -1) {
+                emailError.textContent = 'Not valid domain name';
+                return false;
+            }
+            const domainPart = emailVal.slice(atPos + 1, dotPos);
+            if (domainPart.length < 2) {
+                emailError.textContent = 'Not valid domain name';
+                return false;
+            }
+
+            const tldPart = emailVal.slice(dotPos + 1);
+            if (tldPart.length < 2) {
+                emailError.textContent = 'Not valid domain name';
+                return false;
+            }
+
+            return true;
+        }
+
+        function checkEmailExists() {
+            const emailVal = emailInput.value.trim();
+            fetch(`/auth/check_username?u=${encodeURIComponent(emailVal)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        emailError.textContent = 'This email is already taken.';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error checking email existence:', err);
+                });
+        }
+
+        passwordInput.addEventListener('input', validatePassword);
+
+        function validatePassword() {
+            passwordError.textContent = '';
+            const pwd = passwordInput.value;
+
+            if (pwd.length < 8) {
+                passwordError.textContent = 'Must be at least 8 characters.';
+                return false;
+            }
+            if (!/[A-Z]/.test(pwd)) {
+                passwordError.textContent = 'Must contain an uppercase letter.';
+                return false;
+            }
+            if (!/\d/.test(pwd)) {
+                passwordError.textContent = 'Must contain a digit.';
+                return false;
+            }
+            if (!/[^A-Za-z0-9]/.test(pwd)) {
+                passwordError.textContent = 'Must contain a special character.';
+                return false;
+            }
+
+            return true;
+        }
+
+        dobInput.addEventListener('blur', validateDOB);
+
+        function validateDOB() {
+            dobError.textContent = '';
+            const dobVal = dobInput.value;
+            if (!dobVal) return true;
+
+            const birth = new Date(dobVal);
+            if (isNaN(birth.getTime())) return true;
+
+            const today = new Date();
+            let age = today.getFullYear() - birth.getFullYear();
+            const m = today.getMonth() - birth.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            if (age < 6) {
+                dobError.textContent = 'Too small age to register!';
+                return false;
+            }
+            if (age > 100) {
+                dobError.textContent = 'Please enter valid age!';
+                return false;
+            }
+            return true;
+        }
+
+        form.addEventListener('submit', function (e) {
+            let valid = true;
+            if (!validateEmail()) valid = false;
+            if (!validatePassword()) valid = false;
+            if (!validateDOB()) valid = false;
+
+            if (!valid) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock %}

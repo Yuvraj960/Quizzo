@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Quiz Master</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+  {% if session.get('role') == 'admin' %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  {% elif session.get('role') == 'user' %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+  {% endif %}
+</head>
+
+<body>
+  {% if session.get('user_id') %}
+  {% if session.get('role') == 'admin' %}
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="{{ url_for('auth.index') }}">QuizMaster</a>
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('admin.quiz_dashboard') }}">Quiz</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('admin.admin_summary') }}">Summary</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+      </li>
+    </ul>
+    <form class="form-inline my-2 my-lg-0" action="{{ url_for('admin.search') }}" method="GET">
+      <input class="form-control mr-sm-2" type="search" name="query" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+    <span class="navbar-text ml-auto">
+      Welcome Admin
+    </span>
+  </nav>
+  {% elif session.get('role') == 'user' %}
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="{{ url_for('auth.index') }}">QuizMaster</a>
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('user.user_dashboard') }}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('user.user_scores') }}">Scores</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('user.user_summary') }}">Summary</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+      </li>
+    </ul>
+    <form class="form-inline" action="{{ url_for('user.user_search') }}" method="GET">
+      <input name="query" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+    </form>
+    <span class="navbar-text ml-auto">
+      Welcome {{ session.get('username') }}
+    </span>
+  </nav>
+  {% endif %}
+  {% else %}
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="{{ url_for('auth.index') }}">QuizMaster</a>
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+      </li>
+    </ul>
+  </nav>
+  {% endif %}
+
+  <div class="container mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+</body>
+
+</html>

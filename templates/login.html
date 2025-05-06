@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Login</h2>
+<form id="loginForm" method="POST" action="{{ url_for('auth.login') }}">
+    <div class="form-group">
+        <label>Username (email)</label>
+        <input id="loginEmail" name="username" type="text" class="form-control" required>
+        <span id="loginEmailError" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label>Password</label>
+        <input id="loginPassword" name="password" type="password" class="form-control" required>
+        <span id="loginPasswordError" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('loginForm');
+  const emailInput = document.getElementById('loginEmail');
+  const emailError = document.getElementById('loginEmailError');
+
+  const passwordInput = document.getElementById('loginPassword');
+  const passwordError = document.getElementById('loginPasswordError');
+
+  emailInput.addEventListener('input', validateLoginEmail);
+
+  function validateLoginEmail() {
+    emailError.textContent = '';
+    const emailVal = emailInput.value.trim();
+
+    if (!emailVal) {
+      emailError.textContent = 'Email is required.';
+      return false;
+    }
+    const atCount = (emailVal.match(/@/g) || []).length;
+    if (atCount !== 1) {
+      emailError.textContent = 'Invalid email address format';
+      return false;
+    }
+    if (/\s/.test(emailVal)) {
+      emailError.textContent = 'Invalid email address format';
+      return false;
+    }
+    const atPos = emailVal.indexOf('@');
+    const localPart = emailVal.slice(0, atPos);
+    if (/^\d/.test(localPart) || localPart.length < 4) {
+      emailError.textContent = 'Invalid email address format';
+      return false;
+    }
+    const dotPos = emailVal.indexOf('.', atPos + 1);
+    if (dotPos === -1) {
+      emailError.textContent = 'Not valid domain name';
+      return false;
+    }
+    const domainPart = emailVal.slice(atPos + 1, dotPos);
+    if (domainPart.length < 2) {
+      emailError.textContent = 'Not valid domain name';
+      return false;
+    }
+    const tldPart = emailVal.slice(dotPos + 1);
+    if (tldPart.length < 2) {
+      emailError.textContent = 'Not valid domain name';
+      return false;
+    }
+
+    return true;
+  }
+
+  passwordInput.addEventListener('input', function() {
+    validateLoginPassword();
+  });
+
+  function validateLoginPassword() {
+    passwordError.textContent = '';
+    if (!passwordInput.value.trim()) {
+      passwordError.textContent = 'Password is required.';
+      return false;
+    }
+    return true;
+  }
+
+  form.addEventListener('submit', function(e) {
+    let valid = true;
+    if (!validateLoginEmail()) valid = false;
+    if (!validateLoginPassword()) valid = false;
+
+    if (!valid) {
+      e.preventDefault();
+    }
+  });
+});
+</script>
+{% endblock %}
