@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+  {% for subject in subjects_data %}
+  <div class="col-md-6">
+    <div class="subject-box">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">{{ subject.name }}</h3>
+        <div>
+          <a href="{{ url_for('admin.edit_subject', subject_id=subject.id) }}" class="btn btn-warning btn-sm">Edit
+            Subject</a>
+          <form method="POST" action="{{ url_for('admin.delete_subject', subject_id=subject.id) }}"
+            style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this subject?');">
+            <button type="submit" class="btn btn-danger btn-sm">Delete Subject</button>
+          </form>
+        </div>
+      </div>
+
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Chapter Name</th>
+            <th># of Quizzes</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for chapter in subject.chapters %}
+          <tr>
+            <td>{{ chapter.name }}</td>
+            <td>{{ chapter.quiz_count }}</td>
+            <td class="d-flex">
+              <a href="{{ url_for('admin.edit_chapter', chapter_id=chapter.id) }}"
+                class="btn btn-warning btn-sm mr-2">Edit</a>
+
+              <form method="POST" action="{{ url_for('admin.delete_chapter', chapter_id=chapter.id) }}"
+                onsubmit="return confirm('Are you sure you want to delete this chapter?');">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="3">No chapters added yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <a href="{{ url_for('admin.admin_chapters', subject_id=subject.id) }}" class="btn btn-primary btn-block">Manage
+        Chapters</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<footer class="fixed-footer">
+  <a href="{{ url_for('admin.admin_subjects') }}" class="btn btn-success btn-block">Manage Subjects</a>
+</footer>
+{% endblock %}

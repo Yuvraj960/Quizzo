@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Edit Question</h2>
+<form method="POST" action="{{ url_for('admin.update_question', question_id=question.id) }}">
+    <div class="form-group">
+        <label>Question Title:</label>
+        <input type="text" name="question_title" class="form-control" value="{{ question.question_title }}" required>
+    </div>
+    <div class="form-group">
+        <label>Question Statement:</label>
+        <textarea name="question_text" class="form-control" required>{{ question.question_text }}</textarea>
+    </div>
+    <div class="form-group">
+        <label>Option 1:</label>
+        <input type="text" name="option1" class="form-control" value="{{ question.option1 }}" required>
+    </div>
+    <div class="form-group">
+        <label>Option 2:</label>
+        <input type="text" name="option2" class="form-control" value="{{ question.option2 }}" required>
+    </div>
+    <div class="form-group">
+        <label>Option 3:</label>
+        <input type="text" name="option3" class="form-control" value="{{ question.option3 }}" required>
+    </div>
+    <div class="form-group">
+        <label>Option 4:</label>
+        <input type="text" name="option4" class="form-control" value="{{ question.option4 }}" required>
+    </div>
+    <div class="form-group">
+        <label>Correct Option (1-4):</label>
+        <input type="number" name="correct_option" class="form-control" min="1" max="4"
+            value="{{ question.correct_option }}" required>
+    </div>
+    <button type="submit" class="btn btn-success">Update Question</button>
+</form>
+{% endblock %}

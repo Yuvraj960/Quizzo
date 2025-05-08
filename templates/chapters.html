@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Manage Chapters for Subject: {{ subject_name }}</h2>
+
+<form method="POST" action="{{ url_for('admin.admin_chapters', subject_id=subject_id) }}">
+  <div class="form-group">
+    <label>Chapter Name</label>
+    <input name="name" type="text" class="form-control" required>
+  </div>
+  <div class="form-group">
+    <label>Description</label>
+    <textarea name="description" class="form-control"></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Create Chapter</button>
+</form>
+
+<hr>
+<h3>Existing Chapters</h3>
+<ul>
+  {% for c in chapters %}
+  <li>
+    <strong>{{ c[1] }}</strong> - {{ c[2] }}
+    <a href="{{ url_for('admin.edit_chapter', chapter_id=c.id) }}" class="btn btn-warning btn-sm">Edit</a>
+    <form method="POST" action="{{ url_for('admin.delete_chapter', chapter_id=c[0]) }}" style="display:inline;">
+      <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+    </form>
+    |
+    <a href="{{ url_for('admin.admin_quizzes', chapter_id=c[0]) }}">Manage Quizzes</a>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Admin Summary</h2>
+<div class="row">
+    <div class="col-md-6">
+        <canvas id="barChart"></canvas>
+    </div>
+    <div class="col-md-6">
+        <canvas id="pieChart"></canvas>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <canvas id="lineChart"></canvas>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+    var barCtx = document.getElementById('barChart').getContext('2d');
+    var barChart = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: JSON.parse('{{ subjects|safe }}'),
+            datasets: [{
+                label: 'Total Scores',
+                data: JSON.parse('{{ total_scores|safe }}'),
+                backgroundColor: 'rgba(75, 192, 192, 0.6)'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Subject Wise Total Scores'
+                }
+            }
+        }
+    });
+
+    var pieCtx = document.getElementById('pieChart').getContext('2d');
+    var pieChart = new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: JSON.parse('{{ subjects_attempt|safe }}'),
+            datasets: [{
+                data: JSON.parse('{{ attempts|safe }}'),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Subject Wise User Attempts'
+                }
+            }
+        }
+    });
+
+    var lineCtx = document.getElementById('lineChart').getContext('2d');
+    var lineChart = new Chart(lineCtx, {
+        type: 'line',
+        data: {
+            labels: JSON.parse('{{ subjects_avg|safe }}'),
+            datasets: [{
+                label: 'Average Score',
+                data: JSON.parse('{{ avg_scores|safe }}'),
+                borderColor: 'rgba(255, 99, 132, 0.6)',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Average Scores per Subject'
+                }
+            }
+        }
+    }); 
+</script>
+{% endblock %}

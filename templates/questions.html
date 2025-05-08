@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Manage Questions for Quiz ID: {{ quiz_id }}</h2>
+
+<form method="POST">
+    <div class="form-group">
+        <label>Question Title</label>
+        <input name="question_title" type="text" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label>Question Text</label>
+        <textarea name="question_text" class="form-control" required></textarea>
+    </div>
+    <div class="form-group">
+        <label>Option 1</label>
+        <input name="option1" type="text" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label>Option 2</label>
+        <input name="option2" type="text" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label>Option 3</label>
+        <input name="option3" type="text" class="form-control">
+    </div>
+    <div class="form-group">
+        <label>Option 4</label>
+        <input name="option4" type="text" class="form-control">
+    </div>
+    <div class="form-group">
+        <label>Correct Option (1, 2, 3, or 4)</label>
+        <input name="correct_option" type="number" class="form-control" min="1" max="4" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Question</button>
+</form>
+
+<hr>
+<h3>Existing Questions</h3>
+{% if questions %}
+<ul>
+    {% for q in questions %}
+    <li style="margin-bottom: 20px;">
+        <strong>Title:</strong> {{ q.question_title }}<br>
+        <strong>Question:</strong> {{ q.question_text }}<br><br>
+        1) {{ q.option1 }}<br>
+        2) {{ q.option2 }}<br>
+        {% if q.option3 %}3) {{ q.option3 }}<br>{% endif %}
+        {% if q.option4 %}4) {{ q.option4 }}<br>{% endif %}
+        <strong>Correct Option:</strong> {{ q.correct_option }}
+        <br><br>
+        <a href="{{ url_for('admin.edit_question', question_id=q.id) }}" class="btn btn-warning btn-sm">Edit</a>
+        <form method="POST" action="{{ url_for('admin.delete_question', question_id=q.id) }}" style="display:inline;"
+            onsubmit="return confirm('Are you sure you want to delete this question?');">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No questions added yet.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Manage Subjects</h2>
+
+<form method="POST" action="{{ url_for('admin.admin_subjects') }}">
+  <div class="form-group">
+    <label>Subject Name</label>
+    <input name="name" type="text" class="form-control" required>
+  </div>
+  <div class="form-group">
+    <label>Description</label>
+    <textarea name="description" class="form-control"></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Create Subject</button>
+</form>
+
+<hr>
+<h3>Existing Subjects</h3>
+<ul>
+  {% for s in subjects %}
+  <li>
+    <strong>{{ s[1] }}</strong> - {{ s[2] }}
+    <a href="{{ url_for('admin.edit_subject', subject_id=s[0]) }}" class="btn btn-warning btn-sm">Edit</a>
+    <form method="POST" action="{{ url_for('admin.delete_subject', subject_id=s[0]) }}" style="display:inline;">
+      <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+    </form>
+    |
+    <a href="{{ url_for('admin.admin_chapters', subject_id=s[0]) }}">Manage Chapters</a>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

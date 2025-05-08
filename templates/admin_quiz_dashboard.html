@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+{% for subject in subjects_data %}
+<h2>{{ subject.name }}</h2>
+<div class="row">
+  {% for chapter in subject.chapters %}
+  {% for quiz in chapter.quizzes %}
+  <div class="col-md-6">
+    <div class="quiz-box">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">{{ quiz.quiz_name }} ({{ quiz.chapter_name }})</h4>
+        <div>
+          <a href="{{ url_for('admin.edit_quiz', quiz_id=quiz.id) }}" class="btn btn-warning btn-sm">Edit Quiz</a>
+          <form method="POST" action="{{ url_for('admin.delete_quiz', quiz_id=quiz.id) }}" style="display:inline;"
+            onsubmit="return confirm('Are you sure you want to delete this quiz?');">
+            <button type="submit" class="btn btn-danger btn-sm">Delete Quiz</button>
+          </form>
+        </div>
+      </div>
+
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Q_id</th>
+            <th>Q_title</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for question in quiz.questions %}
+          <tr>
+            <td>{{ question.id }}</td>
+            <td>{{ question.question_title }}</td>
+            <td class="d-flex">
+              <a href="{{ url_for('admin.edit_question', question_id=question.id) }}"
+                class="btn btn-warning btn-sm mr-2">Edit</a>
+              <form method="POST" action="{{ url_for('admin.delete_question', question_id=question.id) }}"
+                onsubmit="return confirm('Delete this question?');">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="3">No questions added yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endfor %}
+  {% endfor %}
+</div>
+{% endfor %}
+
+<footer class="fixed-footer">
+  <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#addQuizModal">
+    Add Quiz
+  </button>
+</footer>
+
+<div class="modal fade" id="addQuizModal" tabindex="-1" role="dialog" aria-labelledby="addQuizModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addQuizModalLabel">Select Chapter for New Quiz</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="selectChapterForm">
+          <div class="form-group">
+            <label for="chapterSelect">Select Chapter:</label>
+            <select class="form-control" id="chapterSelect" name="chapter_id">
+              {% for chapter in all_chapters %}
+              <option value="{{ chapter.id }}">[{{ chapter.id }}] {{ chapter.name }} ({{ chapter.subject_name }})
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="redirectToQuiz()">Create Quiz</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function redirectToQuiz() {
+    var chapterId = document.getElementById("chapterSelect").value;
+    if (chapterId) {
+      window.location.href = "/admin/quizzes/" + chapterId;
+    }
+  }
+</script>
+{% endblock %}

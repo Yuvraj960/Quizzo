@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Your Scores</h2>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Quiz (ID)</th>
+      <th>Subject/Chapter</th>
+      <th>No. of Questions</th>
+      <th>Date Attempted</th>
+      <th>Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in scores %}
+    <tr>
+      <td>
+        Quiz #{{ s.quiz_id }}
+      </td>
+      <td>{{ s.subject_name }} / {{ s.chapter_name }}</td>
+      <td>{{ s.question_count }}</td>
+      <td>{{ s.time_stamp_of_attempt }}</td>
+      <td>{{ s.total_scored }}/{{ s.question_count }}</td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="5">No scores found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
