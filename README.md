@@ -112,6 +112,16 @@ python app.py
 
 Then visit: [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
 
+
+### Through Docker
+
+```bash
+docker pull yuvraj96/quizzo:latest
+docker run -d -p 5000:5000 yuvraj96/quizzo:latest
+```
+
+- The app starts by default at **http://127.0.0.1:5000/**.
+
 ---
 
 ## 🗂 Project Structure
